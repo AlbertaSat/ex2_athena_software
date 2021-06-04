@@ -708,8 +708,8 @@ int RTCMK_WriteYears(/*I2C_TypeDef *i2c,*/
  * @brief
  *    Writes given UNIX 32 bit timestamp to RTC
  *
- * @param[out] val
- *   Reference to place result.
+ * @param[in] unix_timestamp
+ *   Timestamp to use for setting clock
  *
  * @return
  *   Returns 0 if success, <0 if unable to acquire value.
@@ -729,6 +729,18 @@ int RTC_set_unix_time(uint32_t unix_timestamp) {
   if (!RTCMK_WriteYears(RTCMK_ADDR, (uint8_t)t.tm_year - 100)) return(ret);
   return 0;
 }
+
+
+/***************************************************************************//**
+ * @brief
+ *    Reads UNIX timestamp from RTC into given variable
+ *
+ * @param[out] unix_timestamp
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if success, <0 if unable to acquire value.
+ ******************************************************************************/
 
 int RTC_get_unix_time(uint32_t *unix_timestamp) {
   int ret = -1;

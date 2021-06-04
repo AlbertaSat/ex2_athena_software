@@ -347,4 +347,8 @@ int RTCMK_WriteYears(/*I2C_TypeDef *i2c,*/
                         uint8_t addr,
                         uint8_t val);
 
+int RTC_set_unix_time(uint32_t unix_timestamp);
+
+int RTC_get_unix_time(uint32_t *unix_timestamp);
+
 #endif /* DRIVERS_RTCMK_H_ */
