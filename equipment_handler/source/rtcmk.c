@@ -3,7 +3,7 @@
  *
  *  Created on: May 28, 2018
  *  Most recent edit: Aug 11, 2020
- *      Author: sdamk, jdlazaru
+ *      Author: sdamk, jdlazaru, Dustin Wagner
  *
  *
  *
@@ -12,6 +12,8 @@
 
 #include "HL_i2c.h"
 #include "rtcmk.h"
+
+#include <time.h>
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -193,6 +195,10 @@ int RTCMK_ResetTime(/*I2C_TypeDef *i2c,*/
     return((int)i2cIsBusBusy(i2cREG2));
 }
 
+/******************************************************************************/
+/***********************************Readers************************************/
+/******************************************************************************/
+
 /***************************************************************************//**
  * @brief
  *   Returns current content of seconds register in decimal.
@@ -207,7 +213,7 @@ int RTCMK_ResetTime(/*I2C_TypeDef *i2c,*/
  *   Reference to place result.
  *
  * @return
- *   Returns 0 if registers written, <0 if unable to write to registers.
+ *   Returns 0 if register read, <0 if unable to read register.
  ******************************************************************************/
 int RTCMK_ReadSeconds(/*I2C_TypeDef *i2c,*/
                        	uint8_t addr,
@@ -244,7 +250,7 @@ int RTCMK_ReadSeconds(/*I2C_TypeDef *i2c,*/
  *   Reference to place result.
  *
  * @return
- *   Returns 0 if registers written, <0 if unable to write to registers.
+ *   Returns 0 if register read, <0 if unable to read register.
  ******************************************************************************/
 int RTCMK_ReadMinutes(/*I2C_TypeDef *i2c,*/
                        	uint8_t addr,
@@ -281,7 +287,7 @@ int RTCMK_ReadMinutes(/*I2C_TypeDef *i2c,*/
  *   Reference to place result.
  *
  * @return
- *   Returns 0 if registers written, <0 if unable to write to registers.
+ *   Returns 0 if register read, <0 if unable to read register.
  ******************************************************************************/
 int RTCMK_ReadHours(/*I2C_TypeDef *i2c,*/
                        	uint8_t addr,
@@ -302,4 +308,440 @@ int RTCMK_ReadHours(/*I2C_TypeDef *i2c,*/
   *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
 
   return(ret);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Returns current content of weeks register in decimal.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if register read, <0 if unable to read register.
+ ******************************************************************************/
+int RTCMK_ReadWeeks(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t *val)
+{
+  int ret = -1;
+
+  uint8_t tmp = 0;
+
+  ret = RTCMK_RegisterGet(addr,RTCMK_RegWeek,&tmp);
+  if (ret < 0)
+  {
+    return(ret);
+  }
+
+  tmp &= _RTCMK_WEEK_WEEK_MASK;
+
+  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+
+  return(ret);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Returns current content of days register in decimal.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if register read, <0 if unable to read register.
+ ******************************************************************************/
+int RTCMK_ReadDays(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t *val)
+{
+  int ret = -1;
+
+  uint8_t tmp = 0;
+
+  ret = RTCMK_RegisterGet(addr,RTCMK_RegDay,&tmp);
+  if (ret < 0)
+  {
+    return(ret);
+  }
+
+  tmp &= _RTCMK_DAY_DAY_MASK;
+
+  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+
+  return(ret);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Returns current content of months register in decimal.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if register read, <0 if unable to read register.
+ ******************************************************************************/
+int RTCMK_ReadMonths(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t *val)
+{
+  int ret = -1;
+
+  uint8_t tmp = 0;
+
+  ret = RTCMK_RegisterGet(addr,RTCMK_RegMonth,&tmp);
+  if (ret < 0)
+  {
+    return(ret);
+  }
+
+  tmp &= _RTCMK_MONTH_MONTH_MASK;
+
+  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+
+  return(ret);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Returns current content of years register in decimal.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if register read, <0 if unable to read register.
+ ******************************************************************************/
+int RTCMK_ReadYears(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t *val)
+{
+  int ret = -1;
+
+  uint8_t tmp = 0;
+
+  ret = RTCMK_RegisterGet(addr,RTCMK_RegYear,&tmp);
+  if (ret < 0)
+  {
+    return(ret);
+  }
+
+  tmp &= _RTCMK_YEAR_YEAR_MASK;
+
+  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+
+  return(ret);
+}
+
+
+/******************************************************************************/
+/***********************************Writers************************************/
+/******************************************************************************/
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to seconds register.
+ * @attention
+ *   Value limited to 61*. *generally 0-59. extra is for leap seconds
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteSeconds(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 61) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_SEC_SEC_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegSec,tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to minutes register.
+ * @attention
+ *   Value limited to 59 
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteMinutes(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 59) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_MIN_MIN_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegMin, tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to hours register.
+ * @attention
+ *   Value limited to 24 
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteHours(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 24) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_HOUR_HOUR_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegHour,tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to weeks register.
+ * @attention
+ *   Value limited to 6. 0 indexed at Sunday
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteWeeks(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 6) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_WEEK_WEEK_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegWeek,tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to days register.
+ * @attention
+ *   Value limited to 31. Be careful of months that shouldn't have 31 days 
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteDays(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 31) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_DAY_DAY_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegDay,tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to months register.
+ * @attention
+ *   Value limited to 12
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteMonths(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 12) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_MONTH_MONTH_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegMonth,tmp);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Writes value given in decimal to years register.
+ * @attention
+ *   Value limited to 99. should be last 2 digits of year
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *   
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit. 
+ *
+ * @param[in] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_WriteYears(/*I2C_TypeDef *i2c,*/
+                       	uint8_t addr,
+                       	uint8_t val)
+{
+  int ret = -1;
+  
+  if (val > 99) {
+    return(ret);
+  }
+
+  uint8_t tmp = ((val / 10) << 4) + (val % 10);
+
+  tmp &= _RTCMK_YEAR_YEAR_MASK;
+
+  return RTCMK_RegisterSet(addr,RTCMK_RegYear,tmp);
+}
+
+
+/******************************Generic functions*******************************/
+
+/***************************************************************************//**
+ * @brief
+ *    Writes given UNIX 32 bit timestamp to RTC
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if success, <0 if unable to acquire value.
+ ******************************************************************************/
+
+int RTC_set_unix_time(uint32_t unix_timestamp) {
+  int ret = -1;
+  struct tm t = {};
+  t = *gmtime(&unix_timestamp);
+  if (!RTCMK_WriteSeconds(RTCMK_ADDR, (uint8_t)t.tm_sec)) return(ret);
+  if (!RTCMK_WriteMinutes(RTCMK_ADDR, (uint8_t)t.tm_min)) return(ret);
+  if (!RTCMK_WriteHours(RTCMK_ADDR, (uint8_t)t.tm_hour)) return(ret);
+  if (!RTCMK_WriteWeeks(RTCMK_ADDR, (uint8_t)t.tm_wday)) return(ret);
+  if (!RTCMK_WriteDays(RTCMK_ADDR, (uint8_t)t.tm_mday)) return(ret);
+  if (!RTCMK_WriteMonths(RTCMK_ADDR, (uint8_t)t.tm_mon)) return(ret);
+  //t.tm_year is years since 1900. Subtract 100 to get last 2 digits of current
+  if (!RTCMK_WriteYears(RTCMK_ADDR, (uint8_t)t.tm_year - 100)) return(ret);
+  return 0;
+}
+
+int RTC_get_unix_time(uint32_t *unix_timestamp) {
+  int ret = -1;
+  struct tm t = {};
+  time_t unix_time;
+  if (!RTCMK_ReadSeconds(RTCMK_ADDR, (uint8_t*)&t.tm_sec)) return(ret);
+  if (!RTCMK_ReadMinutes(RTCMK_ADDR, (uint8_t*)&t.tm_min)) return(ret);
+  if (!RTCMK_ReadHours(RTCMK_ADDR, (uint8_t*)&t.tm_hour)) return(ret);
+  if (!RTCMK_ReadWeeks(RTCMK_ADDR, (uint8_t*)&t.tm_wday)) return(ret);
+  if (!RTCMK_ReadDays(RTCMK_ADDR, (uint8_t*)&t.tm_mday)) return(ret);
+  if (!RTCMK_ReadMonths(RTCMK_ADDR, (uint8_t*)&t.tm_mon)) return(ret);
+  if (!RTCMK_ReadYears(RTCMK_ADDR, (uint8_t*)&t.tm_year)) return(ret);
+  t.tm_year += 100; //adjust year to be years since 1900
+  *unix_timestamp = mktime(&t);
+  return 0;
 }

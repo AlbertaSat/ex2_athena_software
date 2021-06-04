@@ -303,4 +303,48 @@ int RTCMK_ReadHours(/*I2C_TypeDef *i2c,*/
                         uint8_t addr,
                         uint8_t *val);
 
+int RTCMK_ReadWeeks(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t *val);
+
+int RTCMK_ReadDays(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t *val);
+
+int RTCMK_ReadMonths(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t *val);
+
+int RTCMK_ReadYears(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t *val);
+
+int RTCMK_WriteSeconds(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteMinutes(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteHours(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteWeeks(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteDays(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteMonths(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
+int RTCMK_WriteYears(/*I2C_TypeDef *i2c,*/
+                        uint8_t addr,
+                        uint8_t val);
+
 #endif /* DRIVERS_RTCMK_H_ */
