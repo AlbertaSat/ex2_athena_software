@@ -16,6 +16,8 @@
 #include "HL_emif.h"
 #include "redposix.h"
 #include "FreeRTOS.h"
+#include "os_task.h"
+#include "printf.h"
 
 
 /* Initialize all IO controllers, set the direction for all GPIO pins,
@@ -615,5 +617,40 @@ void fs_stress_worker2(void *pvParameters) {
 void fs_stress_test() {
     xTaskCreate(fs_stress_worker1, "fs 1", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
     xTaskCreate(fs_stress_worker2, "fs 2", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
+
+}
+
+
+// The purpose of this test is to see how long exactly it takes to access files when there are a lot
+void fs_lots_of_files(void *pvParameters) {
+    printf("File, Time(ms)\r\n");
+    TickType_t count = 0;
+    for (int x = 0; x < 30000; x++) {
+        count = xTaskGetTickCount();
+        char filename[30];
+        snprintf(filename, 30, "VOL0:/file%d.txt", x);
+        int fd = red_open(filename, RED_O_RDWR);
+        char msg[20];
+        snprintf(msg, 20, "file %d", x);
+        red_write(fd, msg, strlen(msg));
+        red_close(fd);
+        printf("%d,%d\r\n", x, xTaskGetTickCount() - count);
+    }
+    /*for (int x = 0; x < 30000; x++) {
+        count = xTaskGetTickCount();
+        char filename[30];
+        snprintf(filename, 30, "VOL0:/file%d.txt", x);
+        int fd = red_open(filename, RED_O_RDWR);
+        char msg[20];
+        snprintf(msg, 20, "file %d", x);
+        red_write(fd, msg, strlen(msg));
+        printf("Open: %d\r\n", xTaskGetTickCount() - count);
+    }*/
+    printf("end");
+    vTaskDelete(0);
+}
+
+void create_lots_of_files_test() {
+    xTaskCreate(fs_lots_of_files, "lots_files", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
 
 }

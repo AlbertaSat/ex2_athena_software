@@ -30,4 +30,4 @@ uint8_t CANRxTest(canBASE_t * regset, uint8_t msgbox);
 void blinky();
 void SDRAM_Test();
 void fs_stress_test();
-
+void create_lots_of_files_test();
