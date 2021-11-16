@@ -27,7 +27,7 @@ void InitIO(void){
     spiInit();
     gioInit();
     //emif_SDRAMInit(); not using until SDRAM tested
-    //hetInit(); don't think this is necessary
+    hetInit(); //don't think this is necessary
 
     //The following sets the proper direction for all GPIO
     gioSetDirection(hetPORT2, 0xFFFFFFEA);
