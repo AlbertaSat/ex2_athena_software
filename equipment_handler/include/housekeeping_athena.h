@@ -21,7 +21,7 @@
 #define HOUSEKEEPING_ATHENA_H
 
 #include "FreeRTOS.h"
-#include "task.h"
+#include "os_task.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
