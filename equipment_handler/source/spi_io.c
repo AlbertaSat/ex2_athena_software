@@ -10,23 +10,34 @@
 /******************************************************************************
  Module Public Functions - Low level SPI control functions
 ******************************************************************************/
+static SemaphoreHandle_t sd_block;
 
-void SPI_Init(void) {}
+void SPI_Init(void) { sd_block = xSemaphoreCreateBinary(); }
 
-BYTE SPI_RW(BYTE d) {
-    while ((SD_SPI->FLG & 0x0200) == 0)
-        ;                           // Wait until TXINTFLG is set for previous transmission
-    spiREG3->DAT1 = d | 0x100D0000; // transmit register address
+static spiDAT1_t sd_config = {false, false, SPI_FMT_0, SPI_CS_NONE};
 
-    while ((SD_SPI->FLG & 0x0100) == 0)
-        ;                                 // Wait until RXINTFLG is set when new value is received
-    return ((unsigned char)spiREG3->BUF); // Return received value
+void SPI_SendReceive(uint32_t size, uint8_t *src, uint8_t *dest) {
+    spiTransmitAndReceiveData(SD_SPI, &sd_config, size, src, dest);
+    // if (xSemaphoreTake(sd_block, 200) != pdTRUE) {
+    //    return false;
+    //}
+    return true;
+}
+
+void SPI_Send(uint32_t size, uint8_t *src) { spiTransmitData(SD_SPI, &sd_config, size, src); }
+
+void SPI_Receive(uint32_t size, uint8_t *dest) { spiReceiveData(SD_SPI, &sd_config, size, dest); }
+
+void sd_spiEndNotification(spiBASE_t *spi) {
+    static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(sd_block, &xHigherPriorityTaskWoken);
 }
 
 void SPI_Release(void) {
     WORD idx;
-    for (idx = 512; idx && (SPI_RW(0xFF) != 0xFF); idx--)
-        ;
+    uint8_t r = 0;
+    for (idx = 512; idx && (r != 0xFF); idx--)
+        SPI_Receive(1, &r);
 }
 
 inline void SPI_CS_Low(uint8_t bVolNum) {

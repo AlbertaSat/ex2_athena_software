@@ -19,6 +19,10 @@
  */
 void SPI_Init(void);
 
+void SPI_SendReceive(uint32_t size, uint8_t *src, uint8_t *dest);
+void SPI_Send(uint32_t size, uint8_t *src);
+void SPI_Receive(uint32_t size, uint8_t *dest);
+
 /**
     \brief Read/Write a single byte.
     \param d Byte to send.
