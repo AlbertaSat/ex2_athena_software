@@ -15,22 +15,47 @@ static SemaphoreHandle_t sd_block;
 void SPI_Init(void) { sd_block = xSemaphoreCreateBinary(); }
 
 static spiDAT1_t sd_config = {false, false, SPI_FMT_0, SPI_CS_NONE};
-
-void SPI_SendReceive(uint32_t size, uint8_t *src, uint8_t *dest) {
+//#define SD_INTERRUPT
+bool SPI_SendReceive(uint32_t size, uint8_t *src, uint8_t *dest) {
+#ifdef SD_INTERRUPT
+    spiSendAndGetData(SD_SPI, &sd_config, size, src, dest);
+    if (xSemaphoreTake(sd_block, 1000) != pdTRUE) {
+        return false;
+    }
+#else
     spiTransmitAndReceiveData(SD_SPI, &sd_config, size, src, dest);
-    // if (xSemaphoreTake(sd_block, 200) != pdTRUE) {
-    //    return false;
-    //}
+#endif
     return true;
 }
 
-void SPI_Send(uint32_t size, uint8_t *src) { spiTransmitData(SD_SPI, &sd_config, size, src); }
+bool SPI_Send(uint32_t size, uint8_t *src) {
+#ifdef SD_INTERRUPT
+    spiSendData(SD_SPI, &sd_config, size, src);
+    if (xSemaphoreTake(sd_block, 1000) != pdTRUE) {
+        return false;
+    }
+#else
+    spiTransmitData(SD_SPI, &sd_config, size, src);
+#endif
+    return true;
+}
 
-void SPI_Receive(uint32_t size, uint8_t *dest) { spiReceiveData(SD_SPI, &sd_config, size, dest); }
+bool SPI_Receive(uint32_t size, uint8_t *dest) {
+#ifdef SD_INTERRUPT
+    spiGetData(SD_SPI, &sd_config, size, dest);
+    if (xSemaphoreTake(sd_block, portMAX_DELAY) != pdTRUE) {
+        return false;
+    }
+#else
+    spiReceiveData(SD_SPI, &sd_config, size, dest);
+#endif
+    return true;
+}
 
 void sd_spiEndNotification(spiBASE_t *spi) {
     static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR(sd_block, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void SPI_Release(void) {

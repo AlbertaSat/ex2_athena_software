@@ -7,6 +7,7 @@
  */
 
 #include "sd_io.h"
+#include "string.h"
 #define FALSE 0
 #define TRUE 1
 #define HIGH 1
@@ -85,6 +86,7 @@ void __SD_Speed_Transfer(BYTE throttle) {
         SPI_Freq_Low();
 }
 
+// 0 indicates success, >= 1 indicates failure
 BYTE __SD_Send_Cmd(uint8_t bVolNum, BYTE cmd, DWORD arg) {
     BYTE crc, res;
     // ACMD«n» is the command sequence of CMD55-CMD«n»
@@ -124,7 +126,7 @@ BYTE __SD_Send_Cmd(uint8_t bVolNum, BYTE cmd, DWORD arg) {
     // Wait for a valid response in timeout of 5 milliseconds
     SPI_Timer_On(5);
     do {
-        SPI_Receive(1, &res);
+        SPI_SendReceive(1, &b, &res);
     } while ((res & 0x80) && (SPI_Timer_Status() == TRUE));
     SPI_Timer_Off();
     // Return with the response value
@@ -142,7 +144,7 @@ SDRESULTS __SD_Write_Block(uint8_t bVolNum, const void *dat, BYTE token) {
         SPI_Send(SD_BLK_SIZE, (uint8_t *)dat);
 
         /* Dummy CRC */
-        uint8_t crc[2] = {0xFF};
+        uint8_t crc[2] = {0xFF, 0xFF};
         SPI_Send(2, crc);
         // If not accepted, returns the reject error
         uint8_t res;
@@ -156,6 +158,7 @@ SDRESULTS __SD_Write_Block(uint8_t bVolNum, const void *dat, BYTE token) {
         SPI_Receive(1, &line);
     } while ((line == 0) && (SPI_Timer_Status() == TRUE));
     SPI_Timer_Off();
+    vTaskDelay(5);
     if (line == 0)
         return (SD_BUSY);
     else
@@ -229,7 +232,8 @@ SDRESULTS SD_Init(uint8_t bVolNum) {
         SPI_Freq_Low();
 
         // 80 dummy clocks
-        uint8_t dummy[10] = {0xFF};
+        uint8_t dummy[10];
+        memset(dummy, 0xFF, 10);
         SPI_Send(10, dummy);
         //        SPI_Timer_On(500);
         //        while(SPI_Timer_Status()==TRUE);
