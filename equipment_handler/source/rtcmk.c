@@ -309,7 +309,7 @@ int RTCMK_ReadHours(uint8_t addr, uint8_t *val) {
 
 /**
  * @brief
- *   Returns current content of hours
+ *   Returns current content of week
  *register in decimal.
  *
  * @param[in] addr
@@ -342,7 +342,7 @@ int RTCMK_ReadWeek(uint8_t addr, uint8_t *val) {
 
 /**
  * @brief
- *   Returns current content of hours
+ *   Returns current content of month
  *register in decimal.
  *
  * @param[in] addr
@@ -375,7 +375,7 @@ int RTCMK_ReadMonth(uint8_t addr, uint8_t *val) {
 
 /**
  * @brief
- *   Returns current content of hours
+ *   Returns current content of year
  *register in decimal.
  *
  * @param[in] addr
@@ -408,7 +408,7 @@ int RTCMK_ReadYear(uint8_t addr, uint8_t *val) {
 
 /**
  * @brief
- *   Returns current content of hours
+ *   Returns current content of day
  *register in decimal.
  *
  * @param[in] addr
